@@ -5,7 +5,10 @@
 // Extra for Experts:
 // - describe what you did to take this project "above and beyond"
 
-const {Engine, Body, Bodies, Composite, Render, Runner} = Matter;
+// const {Engine, Body, Bodies, Composite, Render, Runner} = Matter;
+
+// first sprite
+let finn;
 
 let spritesheet;
 let frame;
@@ -28,53 +31,68 @@ function preload() {
 }
 
 function setup() {
-  // createCanvas(windowWidth, windowHeight);
-  // frame = 0;
-  noCanvas();
-  engine = Engine.create();
+  createCanvas(windowWidth, windowHeight);
+  frame = 0;
+  // engine = Engine.create();
 
-  render = Render.create({
-    element: document.body,
-    engine: engine,
-    options: {
-      width: 400,
-      height: 400
-    }
-  });
+  // render = Render.create({
+  //   element: document.body,
+  //   engine: engine,
+  //   options: {
+  //     width: 400,
+  //     height: 400
+  //   }
+  // });
 
   // Render.run(render);
   // boxA = Bodies.rectangle(400, 200, 80, 80);
   // boxB = Bodies.rectangle(450, 50, 80, 80);
   // ground = Bodies.rectangle(400, 610, 810, 60, { isStatic: true });
+  finn = new Sprite(width/2, height/2, );
 }
 
-// function draw() {
-//   background(220);
-//   animatedSprite();
-//   image(spritesheet, mouseX, mouseY, spritesheet.width/28, spritesheet.height, frame, 0, spritesheet.width/28, spritesheet.height);
-// }
+function draw() {
+  background(220);
+  finn.display();
+  finn.uptade();
+}
 
-// function keyPressed() {
-//   if (key === "n") {
-//     frame += spritesheet.width/28;
-//   }
-// }
+function keyPressed() {
+  if (key === "n") {
+    frame += spritesheet.width/28;
+  }
+}
 
-// function animatedSprite() {
-//   if (millis() > lastFrameSwap + frameSwitchTime) {
-//     frameSwitch = !frameSwitch;
-//     lastFrameSwap = millis();
-//   }
+function animatedSprite() {
+  if (millis() > lastFrameSwap + frameSwitchTime) {
+    frameSwitch = !frameSwitch;
+    lastFrameSwap = millis();
+  }
 
-//   if (frameSwitch) {
-//     if (frame < FINNFRAMES) {
-//       frame += spritesheet.width/28;
-//       frameSwitch = !frameSwitch;
-//     }
-//     else {
-//       frame = 0;
-//       frameSwitch = !frameSwitch;
-//     }
-//   }
-// }
+  if (frameSwitch) {
+    if (frame < FINNFRAMES) {
+      frame += spritesheet.width/28;
+      frameSwitch = !frameSwitch;
+    }
+    else {
+      frame = 0;
+      frameSwitch = !frameSwitch;
+    }
+  }
+}
 
+class Sprite {
+  constructor(x, y, image) {
+    this.x = x;
+    this.y = y;
+    this.image = image;
+  }
+
+  display() {
+    image(this.image, this.x, this.y);
+  }
+
+  frameUptade() {
+    animatedSprite();
+  }
+}
