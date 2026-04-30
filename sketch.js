@@ -1,98 +1,71 @@
 // Action platformer game
 // Bat-Erdene Lkhagvasuren
 // April 22 2026
-//
-// Extra for Experts:
-// - describe what you did to take this project "above and beyond"
 
-// const {Engine, Body, Bodies, Composite, Render, Runner} = Matter;
-
-// first sprite
 let finn;
 
-let spritesheet;
-let frame;
-let frameSwitchTime = 300;
-let lastFrameSwap = 0;
-let frameSwitch = false;
-
-// matter.js
-let engine;
-let world;
-let render;
-let sprite;
-let boxA;
-let boxB;
-
-const FINNFRAMES = 28;
+let idleFinn;
 
 function preload() {
   spritesheet = loadImage("sprites/FinnSprite.png");
+  idleFinn = loadImage("sprites/FinnSprite_idle.png");
 }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  frame = 0;
-  // engine = Engine.create();
-
-  // render = Render.create({
-  //   element: document.body,
-  //   engine: engine,
-  //   options: {
-  //     width: 400,
-  //     height: 400
-  //   }
-  // });
-
-  // Render.run(render);
-  // boxA = Bodies.rectangle(400, 200, 80, 80);
-  // boxB = Bodies.rectangle(450, 50, 80, 80);
-  // ground = Bodies.rectangle(400, 610, 810, 60, { isStatic: true });
-  finn = new Sprite(width/2, height/2, );
+  finn = new Sprite(width / 2, height / 2, idleFinn, 9);
 }
 
 function draw() {
   background(220);
+
+  finn.update();
   finn.display();
-  finn.uptade();
-}
-
-function keyPressed() {
-  if (key === "n") {
-    frame += spritesheet.width/28;
-  }
-}
-
-function animatedSprite() {
-  if (millis() > lastFrameSwap + frameSwitchTime) {
-    frameSwitch = !frameSwitch;
-    lastFrameSwap = millis();
-  }
-
-  if (frameSwitch) {
-    if (frame < FINNFRAMES) {
-      frame += spritesheet.width/28;
-      frameSwitch = !frameSwitch;
-    }
-    else {
-      frame = 0;
-      frameSwitch = !frameSwitch;
-    }
-  }
 }
 
 class Sprite {
-  constructor(x, y, image) {
+  constructor(x, y, image, frameCount) {
     this.x = x;
     this.y = y;
     this.image = image;
+    this.frameCount = frameCount;
+    this.speed = 1;
+
+    this.frame = 0;
+    this.frameDelay = 300; // milliseconds
+    this.lastFrameTime = 0;
+  }
+
+  update() {
+    // control animation speed
+    if (millis() > this.lastFrameTime + this.frameDelay) {
+      this.frame = (this.frame + 1) % this.frameCount;
+      this.lastFrameTime = millis();
+    }
+
+    // movements: left, right
+    if (keyIsDown(68)) {
+      this.x += this.speed;
+    }
+    if (keyIsDown(65)) {
+      this.x -= this.speed;
+    }
   }
 
   display() {
-    image(this.image, this.x, this.y);
-  }
-
-  frameUptade() {
-    animatedSprite();
+    let frameWidth = this.image.width / this.frameCount;
+    let frameHeight = this.image.height;
+    noSmooth();
+    image(
+      this.image,
+      this.x,
+      this.y,
+      frameWidth,
+      frameHeight,
+      this.frame * frameWidth, // crop X
+      0,                       // crop Y
+      frameWidth,
+      frameHeight
+    );
   }
 }
