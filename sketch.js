@@ -4,16 +4,14 @@
 
 let finn;
 
-let idleFinn;
-
 function preload() {
-  spritesheet = loadImage("sprites/FinnSprite.png");
+  finn = loadImage("sprites/FinnSprite.png");
   idleFinn = loadImage("sprites/FinnSprite_idle.png");
 }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  finn = new Sprite(width / 2, height / 2, idleFinn, 9);
+  finn = new Sprite(width / 2, height / 2, finn, 28);
 }
 
 function draw() {
@@ -34,12 +32,16 @@ class Sprite {
     this.frame = 0;
     this.frameDelay = 300; // milliseconds
     this.lastFrameTime = 0;
+    this.state = "idle";
   }
 
   update() {
     // control animation speed
-    if (millis() > this.lastFrameTime + this.frameDelay) {
-      this.frame = (this.frame + 1) % this.frameCount;
+    if (millis() > this.lastFrameTime + this.frameDelay && this.state === "idle") {
+      for (let i = 0; i < 9; i++) {
+        this.frame = (this.frame + 1) % this.frameCount;
+      }
+      this.frame = 0;
       this.lastFrameTime = millis();
     }
 
