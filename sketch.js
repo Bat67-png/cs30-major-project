@@ -72,32 +72,58 @@
 //   }
 // }
 
-// createCanvas();
+// await Canvas();
 // world.gravity.y = 10;
 
 // let ball = new Sprite();
-// ball.x = halfWidth - 200;
-// ball.y = halfHeight - 200;
 // ball.diameter = 50;
+// ball.img = '🤪';
 
 // let groundA = new Sprite();
-// groundA.x = halfWidth - 120;
-// groundA.width = 200;
-// groundA.rotation = 20;
+// groundA.x = -120;
+// groundA.width = 220;
+// groundA.rotation = 30;
 // groundA.physics = STATIC;
 
 // let groundB = new Sprite();
-// groundB.x = halfWidth + 120;
-// groundB.width = 200;
-// groundB.rotation = -20;
+// groundB.x = 120;
+// groundB.width = 220;
+// groundB.rotation = -30;
 // groundB.physics = STATIC;
 
-// function update() {
+// q5.update = function () {
 // 	background('skyblue');
-
-// 	textAlign(CENTER);
-// 	textSize(20);
-// 	text('click to jump!', halfWidth, halfHeight - 100);
+// 	text('click to jump!', 0, -50);
 
 // 	if (mouse.presses()) ball.vel.y = -5;
+// };
+
+// await Canvas(40, 16);
+// displayMode(NORMAL, PIXELATED, 4);
+
+// let coin = new Sprite();
+
+// //         (spriteSheet,   frames)
+// coin.addAni('assets/coin.png', 14);
+
+// q5.update = clear;
+
+// let ball = new Sprite();
+// let floor = new Sprite();
+
+// function setup() {
+//     createCanvas(windowWidth, windowHeight);
+//     world.gravity.y = 10;
+    
+//     ball.diameter = 50;
+//     ball.y = -70;
+    
+//     floor.y = 90;
+//     floor.w = 230;
+//     floor.h = 5;
+//     floor.physics = STATIC;
+// }
+
+// function draw() {
+
 // }
