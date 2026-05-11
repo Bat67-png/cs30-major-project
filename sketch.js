@@ -5,6 +5,8 @@
 let finn;
 let hearts;
 let state = "idle";
+let hit = false;
+let gate = false;
 
 function preload() {
   finnImg = loadImage("sprites/FinnSprite.png");
@@ -16,6 +18,8 @@ function setup() {
   hearts = 5;
 }
 
+
+
 function draw() {
   background(220);
 
@@ -23,7 +27,25 @@ function draw() {
   finn.display();
 
   text(hearts, 0, 50);
-  rect(width/2 + 50, height/2, 100, 50);
+  rect(100, 100, 80, 30);
+  rect(mouseX, mouseY, 50, 75);
+
+  hit = collideRectRect(100, 100, 80, 30, mouseX, mouseY, 50, 75);
+
+  stroke(hit ? color('red') : 100);
+  print('colliding?', hit);
+
+  if (!gate) { // debounce so that only one live gets reduced
+    if (hit) {
+      hearts--;
+      gate = true;
+    }
+
+    if (!hit) {
+      gate = false;
+    }
+  }
+  
 }
 
 class Sprite {
@@ -76,7 +98,9 @@ class Sprite {
   display() {
     let frameWidth = this.image.width / this.frameCount;
     let frameHeight = this.image.height;
-    rect(this.x + 5, this.y + 5, frameWidth - 15, frameHeight - 10);
+    const FINNWIDTH = frameWidth - 15;
+    const FINNHEIGHT = frameHeight - 10;
+    rect(this.x + 5, this.y + 5, FINNWIDTH, FINNHEIGHT);
     noSmooth();
     image(
       this.image,
@@ -89,7 +113,6 @@ class Sprite {
       frameWidth,
       frameHeight
     );
-    stroke("red");
   }
 }
 
