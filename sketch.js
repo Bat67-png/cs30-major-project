@@ -115,3 +115,61 @@
 //   }
 // }
 
+// let Engine = Matter.Engine,
+//     Render = Matter.Render,
+//     Runner = Matter.Runner,
+//     Bodies = Matter.Bodies,
+//     Composite = Matter.Composite;
+
+const {Engine, Render, Runner, Bodies, Composite} = Matter;
+
+let engine;
+let render;
+let boxA;
+let runner;
+let ground;
+
+// create an engine
+function setup() {
+  noCanvas();
+  engine = Engine.create();
+
+  // create a renderer
+  render = Render.create({
+    element: document.body,
+    engine: engine,
+
+    // canvas size
+    options: {
+      width: 800,
+      height: 800
+    }
+  });
+  boxA = Bodies.rectangle(100, 100, 40, 40);
+  ground = Bodies.rectangle(410, 300, 800, 50, {isStatic: true});
+
+  Composite.add(engine.world, [boxA, ground]);
+  
+  Render.run(render);
+
+  runner = Runner.create();
+  Runner.run(runner, engine);
+}
+
+
+
+// create two boxes and a ground
+// var boxA = Bodies.rectangle(400, 200, 80, 80);
+// var boxB = Bodies.rectangle(450, 50, 80, 80);
+// var ground = Bodies.rectangle(400, 610, 810, 60, { isStatic: true });
+
+// // add all of the bodies to the world
+// Composite.add(engine.world, [boxA, boxB, ground]);
+
+// // run the renderer
+
+// // create runner
+// var runner = Runner.create();
+
+// // run the engine
+// Runner.run(runner, engine);
