@@ -127,37 +127,29 @@ https://www.pattvira.com/
 
 
 const {Engine, Body, Bodies, Composite} = Matter;
-
 let engine;
-let boxes = []; 
-let ground;
+let circleX = 120;
+let circleY = 123;
 
 function setup() {
-  createCanvas(400, 400);
+  createCanvas(500, 500);
   engine = Engine.create();
 
-  box = Bodies.rectangle(100, 100, 50, 50);
-  Body.setAngularVelocity(box, 0.2);
+  circle = Bodies.circle(circleX, circleY, 50, {isStatic: true});
 
-  ground = Bodies.rectangle(200, 300, 400, 10, {isStatic: true});
-
-  Composite.add(engine.world, [box, ground]);
- 
+  Composite.add(engine.world, circle);
 }
 
 function draw() {
-  background(220);
-  Engine.update(engine);
+  background("white");
+  Engine.update(engine); // Updates the engine 60 times per second
 
-  rect(CENTER);
-  let x = box.position.x;
-  let y = box.position.y;
-  rect(x, y, 50, 50);
-  for (let i=0; i<boxes.length; i++) {
-    boxes[i].display();
-  }
+  noStroke();
+  fill("red");
+  let x = circle.position.x;
+  let y = circle.position.y;
+  circle(x, y, 50);
+
+
 }
 
-function mousePressed() {
-  boxes.push(new Rect(mouseX, mouseY, 20, 20));
-}
