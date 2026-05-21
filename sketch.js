@@ -130,14 +130,14 @@ const {Engine, Body, Bodies, Composite} = Matter;
 let engine;
 let circleX = 120;
 let circleY = 123;
+let balls = [];
+let ball;
 
 function setup() {
   createCanvas(500, 500);
   engine = Engine.create();
 
-  circle = Bodies.circle(circleX, circleY, 50, {isStatic: true});
 
-  Composite.add(engine.world, circle);
 }
 
 function draw() {
@@ -146,10 +146,16 @@ function draw() {
 
   noStroke();
   fill("red");
-  let x = circle.position.x;
-  let y = circle.position.y;
-  circle(x, y, 50);
+  for (ball in balls) {
+    circle(ball.x, ball.y, 50);
+  }
+  
 
+}
 
+function mousePressed() {
+  ball = Bodies.circle(mouseX, mouseY, 50);
+  Composite.add(engine.world, ball);
+  balls.push(ball);
 }
 
