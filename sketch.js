@@ -132,30 +132,40 @@ let circleX = 120;
 let circleY = 123;
 let balls = [];
 let ball;
+let radius = 50;
+let ground;
 
 function setup() {
-  createCanvas(500, 500);
+  createCanvas(windowWidth, windowHeight);
   engine = Engine.create();
 
+  ground = Bodies.rectangle(100, 700, 400, 10, {isStatic: true});
 
+  Composite.add(engine.world, ground);
 }
 
 function draw() {
   background("white");
   Engine.update(engine); // Updates the engine 60 times per second
 
+
+
   noStroke();
   fill("red");
-  for (ball in balls) {
-    circle(ball.x, ball.y, 50);
+  for (ball of balls) {
+    circle(ball.position.x, ball.position.y, radius * 2);
   }
   
+  fill("black");
+  rect(ground.position.x, ground.position.y, 400, 10);
 
 }
 
 function mousePressed() {
-  ball = Bodies.circle(mouseX, mouseY, 50);
+  ball = Bodies.circle(mouseX, mouseY, radius);
   Composite.add(engine.world, ball);
   balls.push(ball);
 }
+
+
 
