@@ -8,6 +8,7 @@ let radius = 30;
 let finn;
 let finnImg;
 let mcBox;
+let finnBody;
 
 let hearts = 5;
 let hit = false;
@@ -29,6 +30,10 @@ function setup() {
     width,
     20,
     { isStatic: true }
+  );
+
+  finnBody = Bodies.rectangle(
+    width / 2, height / 2, 50, 50
   );
 
   Composite.add(engine.world, ground);
@@ -115,9 +120,7 @@ function mousePressed() {
   balls.push(ball);
 }
 
-// ====================================
 // SPRITE CLASS
-// ====================================
 
 class Sprite {
   constructor(x, y, image, frameCount) {
