@@ -36,10 +36,10 @@ function setup() {
     width / 2, height / 2, 50, 50
   );
 
-  Composite.add(engine.world, ground);
+  Composite.add(engine.world, [ground, finnBody]);
 
   // Finn sprite
-  finn = new Sprite(width / 2, height / 2, finnImg, 28);
+  finn = new Sprite(finnBody.position.x, finnBody.position.y, finnImg, 28);
 }
 
 function draw() {
@@ -51,7 +51,7 @@ function draw() {
   // ----------------------------
   // FINN
   // ----------------------------
-  finn.update();
+  finn.update(finnBody);
   finn.display();
 
   // Hearts display
@@ -100,6 +100,15 @@ function draw() {
   for (let ball of balls) {
     circle(ball.position.x, ball.position.y, radius * 2);
   }
+
+  // temporary square for finn
+  rectMode(CENTER);
+  rect(
+    finnBody.position.x,
+    finnBody.position.y,
+    50,
+    50
+  );
 
   // Ground
   fill("black");
@@ -151,26 +160,6 @@ class Sprite {
 
       this.lastFrameTime = millis();
     }
-
-    // Movement
-    if (keyIsDown(68)) {
-      this.x += this.speed;
-    }
-
-    if (keyIsDown(65)) {
-      this.x -= this.speed;
-    }
-
-    // Jump
-    if (keyIsDown(87)) {
-      this.y -= 5;
-      this.state = "jump";
-    }
-
-    // Fake gravity
-    if (this.y < height / 2) {
-      this.y += this.gravity * 0.5;
-    }
   }
 
   display() {
@@ -198,3 +187,4 @@ class Sprite {
     );
   }
 }
+
