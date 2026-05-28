@@ -17,7 +17,7 @@ let gate = false;
 let moveSpeed = 7;
 let jumpForce = -12;
 let jumpCount = 0;
-let maxJumps = 2;
+let extraJumps = 1;
 
 function preload() {
   finnImg = loadImage("sprites/FinnSprite.png");
@@ -43,7 +43,7 @@ function setup() {
     50, 
     50,
     {
-      friction: 0.001,
+      friction: 0.1,
       restitution: 0,
       frictionAir: 0.02
     }
@@ -70,6 +70,12 @@ function draw() {
   if (keyIsDown(65)) { // A key
     Body.setVelocity(finnBody, {
       x: -moveSpeed,
+      y: finnBody.velocity.y
+    });
+  }
+  if (keyIsDown(68)) { // D key
+    Body.setVelocity(finnBody, {
+      x: moveSpeed,
       y: finnBody.velocity.y
     });
   }
@@ -130,7 +136,7 @@ function draw() {
 function keyPressed() {
   // W key
   if (key === "w" || key === "w") {
-    if (jumpCount < maxJumps) {
+    if (jumpCount < extraJumps) {
 
       Body.setVelocity(finnBody, {
         x: finnBody.velocity.x,
@@ -170,51 +176,51 @@ class Sprite {
     this.state = "idle";
   }
 
-update(body) {
+  update(body) {
 
-  // sync sprite position with Matter.js body
-  this.x = body.position.x;
-  this.y = body.position.y;
+    // sync sprite position with Matter.js body
+    this.x = body.position.x;
+    this.y = body.position.y;
 
-  // animation frames
-  if (
-    millis() > this.lastFrameTime + this.frameDelay
-  ) {
-    this.frame =
+    // animation frames
+    if (
+      millis() > this.lastFrameTime + this.frameDelay
+    ) {
+      this.frame =
       (this.frame + 1) % this.frameCount;
 
-    this.lastFrameTime = millis();
+      this.lastFrameTime = millis();
+    }
   }
-}
 
-display() {
+  display() {
 
-  let frameWidth =
+    let frameWidth =
     this.image.width / 28;
 
-  let frameHeight =
+    let frameHeight =
     this.image.height;
 
-  imageMode(CENTER);
-  noSmooth();
+    imageMode(CENTER);
+    noSmooth();
 
-  image(
-    this.image,
+    image(
+      this.image,
 
-    // screen position
-    this.x,
-    this.y,
+      // screen position
+      this.x,
+      this.y,
 
-    // display size
-    100,
-    100,
+      // display size
+      100,
+      100,
 
-    // spritesheet crop
-    this.frame * frameWidth,
-    0,
-    frameWidth,
-    frameHeight
-  );
-}
+      // spritesheet crop
+      this.frame * frameWidth,
+      0,
+      frameWidth,
+      frameHeight
+    );
+  }
 }
 
