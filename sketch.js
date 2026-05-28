@@ -1,4 +1,4 @@
-const { Engine, Bodies, Composite } = Matter;
+const { Engine, Bodies, Composite, Body } = Matter;
 
 let engine;
 let balls = [];
@@ -13,6 +13,11 @@ let finnBody;
 let hearts = 5;
 let hit = false;
 let gate = false;
+
+let moveSpeed = 7;
+let jumpForce = -12;
+let jumpCount = 0;
+let maxJumps = 2;
 
 function preload() {
   finnImg = loadImage("sprites/FinnSprite.png");
@@ -33,13 +38,21 @@ function setup() {
   );
 
   finnBody = Bodies.rectangle(
-    width / 2, height / 2, 50, 50
+    width / 2, 
+    height / 2, 
+    50, 
+    50,
+    {
+      friction: 0.001,
+      restitution: 0,
+      frictionAir: 0.02
+    }
   );
 
   Composite.add(engine.world, [ground, finnBody]);
 
   // Finn sprite
-  finn = new Sprite(finnBody.position.x, finnBody.position.y, finnImg, 28);
+  finn = new Sprite(finnBody.position.x, finnBody.position.y, finnImg, 9);
 }
 
 function draw() {
@@ -48,9 +61,19 @@ function draw() {
   // Update physics engine
   Engine.update(engine);
 
-  // ----------------------------
-  // FINN
-  // ----------------------------
+  // ground detection. Jump reset
+  if (finnBody.position.y > height - 100) {
+    jumpCount = 0;
+  }
+
+  // FINN (Character)
+  if (keyIsDown(65)) { // A key
+    Body.setVelocity(finnBody, {
+      x: -moveSpeed,
+      y: finnBody.velocity.y
+    });
+  }
+  
   finn.update(finnBody);
   finn.display();
 
@@ -59,9 +82,7 @@ function draw() {
   textSize(32);
   text("Hearts: " + hearts, 20, 50);
 
-  // ----------------------------
   // COLLISION TEST RECT
-  // ----------------------------
   fill("blue");
   rect(100, 100, 80, 30);
 
@@ -91,27 +112,12 @@ function draw() {
     gate = false;
   }
 
-  // ----------------------------
+
   // MATTER.JS BALLS
-  // ----------------------------
   noStroke();
-  fill("red");
-
-  for (let ball of balls) {
-    circle(ball.position.x, ball.position.y, radius * 2);
-  }
-
-  // temporary square for finn
-  rectMode(CENTER);
-  rect(
-    finnBody.position.x,
-    finnBody.position.y,
-    50,
-    50
-  );
+  fill(0, 0, 255, 50);
 
   // Ground
-  fill("black");
   rectMode(CENTER);
   rect(
     ground.position.x,
@@ -119,6 +125,21 @@ function draw() {
     width,
     20
   );
+}
+
+function keyPressed() {
+  // W key
+  if (key === "w" || key === "w") {
+    if (jumpCount < maxJumps) {
+
+      Body.setVelocity(finnBody, {
+        x: finnBody.velocity.x,
+        y: jumpForce
+      }
+      );
+      jumpCount++;
+    }
+  }
 }
 
 function mousePressed() {
@@ -149,42 +170,51 @@ class Sprite {
     this.state = "idle";
   }
 
-  update() {
+update(body) {
 
-    // Animation
-    if (
-      millis() > this.lastFrameTime + this.frameDelay
-    ) {
-      this.frame =
-        (this.frame + 1) % this.frameCount;
+  // sync sprite position with Matter.js body
+  this.x = body.position.x;
+  this.y = body.position.y;
 
-      this.lastFrameTime = millis();
-    }
+  // animation frames
+  if (
+    millis() > this.lastFrameTime + this.frameDelay
+  ) {
+    this.frame =
+      (this.frame + 1) % this.frameCount;
+
+    this.lastFrameTime = millis();
   }
+}
 
-  display() {
+display() {
 
-    let frameWidth =
-      this.image.width / this.frameCount;
+  let frameWidth =
+    this.image.width / 28;
 
-    let frameHeight =
-      this.image.height;
+  let frameHeight =
+    this.image.height;
 
-    noSmooth();
+  imageMode(CENTER);
+  noSmooth();
 
-    image(
-      this.image,
-      this.x,
-      this.y,
-      frameWidth,
-      frameHeight,
+  image(
+    this.image,
 
-      this.frame * frameWidth,
-      0,
+    // screen position
+    this.x,
+    this.y,
 
-      frameWidth,
-      frameHeight
-    );
-  }
+    // display size
+    100,
+    100,
+
+    // spritesheet crop
+    this.frame * frameWidth,
+    0,
+    frameWidth,
+    frameHeight
+  );
+}
 }
 
