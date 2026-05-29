@@ -1,31 +1,62 @@
-const { Engine, Bodies, Composite, Body } = Matter;
 
+// Matter.js
+const { Engine, Bodies, Composite, Body } = Matter;
 let engine;
 let balls = [];
 let ground;
-let radius = 30;
 
+
+// Character
 let finn;
 let finnImg;
 let mcBox;
 let finnBody;
 
-let hearts = 5;
+
+// Character actions
 let hit = false;
 let gate = false;
-
+let hearts = 5;
 let moveSpeed = 7;
 let jumpForce = -12;
 let jumpCount = 0;
 let extraJumps = 1;
+let radius = 30;
+
+// Platforms
+let tiles;
+let levelBackground;
+let platform, coin, exclamationBox, fly, p1, slime, empty;
+let tilesHigh, tilesWide;
+let tileWidth, tileHeight;
+let levelToLoad;
+let lines;
 
 function preload() {
   finnImg = loadImage("sprites/FinnSprite.png");
 }
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(windowWidth, 700);
 
+  //platformer grids
+  tilesHigh = lines.length;
+  tilesWide = lines[0].length;
+
+  tileWidth = width / tilesWide;
+  tileHeight = height / tilesHigh;
+
+  tiles = createEmpty2dArray(tilesWide, tilesHigh);
+
+  //put values into 2d array of characters
+  for (let y = 0; y < tilesHigh; y++) {
+    for (let x = 0; x < tilesWide; x++) {
+      let tileType = lines[y][x];
+      tiles[y][x] = tileType;
+    }
+  }
+
+  
   // Matter.js engine
   engine = Engine.create();
 
@@ -55,7 +86,56 @@ function setup() {
   finn = new Sprite(finnBody.position.x, finnBody.position.y, finnImg, 9);
 }
 
+// Platformer draw functions
+function display() {
+  image(levelBackground, 0, 0, width, height);
+
+  for (let y = 0; y < tilesHigh; y++) {
+    for (let x = 0; x < tilesWide; x++) {
+      showTile(tiles[y][x], x, y);
+    }
+  }
+}
+function showTile(location, x, y) {
+  if (location === "#") {
+    fill("red");
+    rect(x * tileWidth, y * tileHeight, tileWidth, tileHeight);
+  }
+  else if (location === "C") {
+    fill("green");
+    rect(x * tileWidth, y * tileHeight, tileWidth, tileHeight);
+  }
+  else if (location === "B") {
+    rect(x * tileWidth, y * tileHeight, tileWidth, tileHeight);
+  }
+  else if (location === "F") {
+    rect(x * tileWidth, y * tileHeight, tileWidth, tileHeight);
+  }
+  else if (location === "P") {
+    rect(x * tileWidth, y * tileHeight, tileWidth, tileHeight);
+  }
+  else if (location === "S") {
+    rect(x * tileWidth, y * tileHeight, tileWidth, tileHeight);
+  }
+  else {
+    rect(x * tileWidth, y * tileHeight, tileWidth, tileHeight);
+  }
+}
+
+function createEmpty2dArray(cols, rows) {
+  let randomGrid = [];
+  for (let y = 0; y < rows; y++) {
+    randomGrid.push([]);
+    for (let x = 0; x < cols; x++) {
+      randomGrid[y].push(0);
+    }
+  }
+  return randomGrid;
+}
+
 function draw() {
+  display();
+
   background(220);
 
   // Update physics engine
@@ -79,6 +159,13 @@ function draw() {
       y: finnBody.velocity.y
     });
   }
+
+  rect(
+    finnBody.position.x,
+    finnBody.position.y,
+    50,
+    50
+  );
   
   finn.update(finnBody);
   finn.display();
@@ -105,8 +192,6 @@ function draw() {
     50,
     75
   );
-
-  stroke(hit ? color("red") : 100);
 
   // Lose one heart only once per touch
   if (hit && gate === false) {
