@@ -23,7 +23,7 @@ let extraJumps = 1;
 let radius = 30;
 
 // platformer grid
-const CELL_SIZE = 100;
+const CELL_SIZE = 50;
 let grid;
 let rows;
 let cols;
@@ -84,7 +84,7 @@ function createEmpty2dArray(cols, rows) {
 function draw() {
   background(220);
   displayGrid();
-
+  characterHealth();
 
   // Update physics engine
   Engine.update(engine);
@@ -118,38 +118,7 @@ function draw() {
   finn.update(finnBody);
   finn.display();
 
-  // Hearts display
-  fill(0);
-  textSize(32);
-  text("Hearts: " + hearts, 20, 50);
 
-  // COLLISION TEST RECT
-  fill("blue");
-  rect(100, 100, 80, 30);
-
-  fill("green");
-  rect(mouseX, mouseY, 50, 75);
-
-  hit = collideRectRect(
-    100,
-    100,
-    80,
-    30,
-    mouseX,
-    mouseY,
-    50,
-    75
-  );
-
-  // Lose one heart only once per touch
-  if (hit && gate === false) {
-    hearts--;
-    gate = true;
-  }
-
-  if (!hit) {
-    gate = false;
-  }
 
 
   // MATTER.JS BALLS
@@ -165,6 +134,41 @@ function draw() {
     20
   );
 
+}
+
+function characterHealth() {
+  // Hearts display
+  rectMode(CENTER);
+  fill(0);
+  textSize(32);
+  text("Hearts: " + hearts, 20, 50);
+
+  // COLLISION TEST RECT
+  fill("blue");
+  rect(300, 500, 80, 30);
+  fill("green");
+  rect(finnBody.position.x, finnBody.position.y, 50, 50);
+
+  hit = collideRectRect(
+    300,
+    500,
+    80,
+    30,
+    finnBody.position.x,
+    finnBody.position.y,
+    50,
+    50
+  );
+
+  // Lose one heart only once per touch
+  if (hit && gate === false) {
+    hearts--;
+    gate = true;
+  }
+
+  if (!hit) {
+    gate = false;
+  }
 }
 
 function keyPressed() {
@@ -208,6 +212,8 @@ function toggleCell(x, y) {
 }
 
 function displayGrid() {
+  rectMode(CORNER);
+
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
       if (grid[y][x] === 0) {
