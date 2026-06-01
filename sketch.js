@@ -9,7 +9,6 @@ let ground;
 // Character
 let finn;
 let finnImg;
-let mcBox;
 let finnBody;
 
 
@@ -23,40 +22,25 @@ let jumpCount = 0;
 let extraJumps = 1;
 let radius = 30;
 
-// Platforms
-let tiles;
-let levelBackground;
-let platform, coin, exclamationBox, fly, p1, slime, empty;
-let tilesHigh, tilesWide;
-let tileWidth, tileHeight;
-let levelToLoad;
-let lines;
+// platformer grid
+const CELL_SIZE = 100;
+let grid;
+let rows;
+let cols;
+
 
 function preload() {
   finnImg = loadImage("sprites/FinnSprite.png");
 }
 
 function setup() {
-  createCanvas(windowWidth, 700);
+  createCanvas(2000, 700);
 
-  //platformer grids
-  tilesHigh = lines.length;
-  tilesWide = lines[0].length;
+  //Platformer grids
+  rows = Math.floor(height/CELL_SIZE);
+  cols = Math.floor(width/CELL_SIZE);
+  grid = generateRandomGrid(cols, rows);
 
-  tileWidth = width / tilesWide;
-  tileHeight = height / tilesHigh;
-
-  tiles = createEmpty2dArray(tilesWide, tilesHigh);
-
-  //put values into 2d array of characters
-  for (let y = 0; y < tilesHigh; y++) {
-    for (let x = 0; x < tilesWide; x++) {
-      let tileType = lines[y][x];
-      tiles[y][x] = tileType;
-    }
-  }
-
-  
   // Matter.js engine
   engine = Engine.create();
 
@@ -86,42 +70,6 @@ function setup() {
   finn = new Sprite(finnBody.position.x, finnBody.position.y, finnImg, 9);
 }
 
-// Platformer draw functions
-function display() {
-  image(levelBackground, 0, 0, width, height);
-
-  for (let y = 0; y < tilesHigh; y++) {
-    for (let x = 0; x < tilesWide; x++) {
-      showTile(tiles[y][x], x, y);
-    }
-  }
-}
-function showTile(location, x, y) {
-  if (location === "#") {
-    fill("red");
-    rect(x * tileWidth, y * tileHeight, tileWidth, tileHeight);
-  }
-  else if (location === "C") {
-    fill("green");
-    rect(x * tileWidth, y * tileHeight, tileWidth, tileHeight);
-  }
-  else if (location === "B") {
-    rect(x * tileWidth, y * tileHeight, tileWidth, tileHeight);
-  }
-  else if (location === "F") {
-    rect(x * tileWidth, y * tileHeight, tileWidth, tileHeight);
-  }
-  else if (location === "P") {
-    rect(x * tileWidth, y * tileHeight, tileWidth, tileHeight);
-  }
-  else if (location === "S") {
-    rect(x * tileWidth, y * tileHeight, tileWidth, tileHeight);
-  }
-  else {
-    rect(x * tileWidth, y * tileHeight, tileWidth, tileHeight);
-  }
-}
-
 function createEmpty2dArray(cols, rows) {
   let randomGrid = [];
   for (let y = 0; y < rows; y++) {
@@ -134,9 +82,9 @@ function createEmpty2dArray(cols, rows) {
 }
 
 function draw() {
-  display();
-
   background(220);
+  displayGrid();
+
 
   // Update physics engine
   Engine.update(engine);
@@ -216,11 +164,12 @@ function draw() {
     width,
     20
   );
+
 }
 
 function keyPressed() {
   // W key
-  if (key === "w" || key === "w") {
+  if (key === "w" || key === "W" || key === " ") {
     if (jumpCount < extraJumps) {
 
       Body.setVelocity(finnBody, {
@@ -231,15 +180,75 @@ function keyPressed() {
       jumpCount++;
     }
   }
+  if (key === "e") {
+    grid = generateEmptyGrid(cols, rows);
+  }
 }
+
+// Platformer grids
 
 function mousePressed() {
-  let ball = Bodies.circle(mouseX, mouseY, radius);
+  let x = Math.floor(mouseX/CELL_SIZE);
+  let y = Math.floor(mouseY/CELL_SIZE);
 
-  Composite.add(engine.world, ball);
-
-  balls.push(ball);
+  //self
+  toggleCell(x, y);
 }
+
+function toggleCell(x, y) {
+  //make sure the cell actually exists!
+  if (x >= 0 && x < cols && y >= 0 && y < rows) {
+    if (grid[y][x] === 1) {
+      grid[y][x] = 0;
+    }
+    else if (grid[y][x] === 0) {
+      grid[y][x] = 1;
+    }
+  }
+}
+
+function displayGrid() {
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      if (grid[y][x] === 0) {
+        fill("white");
+      }
+      if (grid[y][x] === 1) {
+        fill("black");
+      }
+      square(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
+    }
+  }
+}
+
+function generateRandomGrid(cols, rows) {
+  let newGrid = [];
+  for (let y = 0; y < rows; y++) {
+    newGrid.push([]);
+    for (let x = 0; x < cols; x++) {
+      if (random(100) < 50) {
+        newGrid[y].push(1);
+      }
+      else {
+        newGrid[y].push(0);
+      }
+    }
+  }
+  return newGrid;
+}
+
+function generateEmptyGrid(cols, rows) {
+  let newGrid = [];
+  for (let y = 0; y < rows; y++) {
+    newGrid.push([]);
+    for (let x = 0; x < cols; x++) {
+      newGrid[y].push(0);
+    }
+  }
+  return newGrid;
+}
+
+
 
 // SPRITE CLASS
 
