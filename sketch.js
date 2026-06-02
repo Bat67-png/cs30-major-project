@@ -1,6 +1,6 @@
 
 // Matter.js
-const { Engine, Bodies, Composite, Body } = Matter;
+const { Engine, Bodies, Composite, Body, Events} = Matter;
 let engine;
 let balls = [];
 let ground;
@@ -19,7 +19,7 @@ let hearts = 5;
 let moveSpeed = 7;
 let jumpForce = -12;
 let jumpCount = 0;
-let extraJumps = 1;
+let maxJumps = 2;
 let radius = 30;
 
 // platformer grid
@@ -27,6 +27,8 @@ const CELL_SIZE = 50;
 let grid;
 let rows;
 let cols;
+let blockBodies = [];
+let onGround = false;
 
 
 function preload() {
@@ -39,10 +41,36 @@ function setup() {
   //Platformer grids
   rows = Math.floor(height/CELL_SIZE);
   cols = Math.floor(width/CELL_SIZE);
-  grid = generateRandomGrid(cols, rows);
+  grid = generateEmptyGrid(cols, rows);
+
+  
+  
 
   // Matter.js engine
   engine = Engine.create();
+  reBuildBlocks();
+
+  // character and ground collision detection
+  Events.on(engine, "collisionActive", function(event) {
+
+    for (let pair of event.pairs) {
+
+      if (
+        pair.bodyA === finnBody ||
+      pair.bodyB === finnBody
+      ) {
+
+        // Collision is mostly vertical
+        if (Math.abs(pair.collision.normal.y) > 0.8) {
+
+          // Falling downward
+          if (finnBody.velocity.y >= 0) {
+            jumpCount = 0;
+          }
+        }
+      }
+    }
+  });
 
   ground = Bodies.rectangle(
     width / 2,
@@ -90,9 +118,7 @@ function draw() {
   Engine.update(engine);
 
   // ground detection. Jump reset
-  if (finnBody.position.y > height - 100) {
-    jumpCount = 0;
-  }
+  
 
   // FINN (Character)
   if (keyIsDown(65)) { // A key
@@ -138,12 +164,13 @@ function draw() {
 
 function characterHealth() {
   // Hearts display
-  rectMode(CENTER);
   fill(0);
   textSize(32);
+  textAlign(LEFT, TOP);
   text("Hearts: " + hearts, 20, 50);
-
+  
   // COLLISION TEST RECT
+  rectMode(CENTER);
   fill("blue");
   rect(300, 500, 80, 30);
   fill("green");
@@ -174,7 +201,7 @@ function characterHealth() {
 function keyPressed() {
   // W key
   if (key === "w" || key === "W" || key === " ") {
-    if (jumpCount < extraJumps) {
+    if (jumpCount < maxJumps) {
 
       Body.setVelocity(finnBody, {
         x: finnBody.velocity.x,
@@ -186,10 +213,12 @@ function keyPressed() {
   }
   if (key === "e") {
     grid = generateEmptyGrid(cols, rows);
+    reBuildBlocks();
   }
 }
 
 // Platformer grids
+////////////////////////////////////////////////////////////////////////////////////////
 
 function mousePressed() {
   let x = Math.floor(mouseX/CELL_SIZE);
@@ -208,6 +237,8 @@ function toggleCell(x, y) {
     else if (grid[y][x] === 0) {
       grid[y][x] = 1;
     }
+
+    reBuildBlocks();
   }
 }
 
@@ -227,22 +258,6 @@ function displayGrid() {
   }
 }
 
-function generateRandomGrid(cols, rows) {
-  let newGrid = [];
-  for (let y = 0; y < rows; y++) {
-    newGrid.push([]);
-    for (let x = 0; x < cols; x++) {
-      if (random(100) < 50) {
-        newGrid[y].push(1);
-      }
-      else {
-        newGrid[y].push(0);
-      }
-    }
-  }
-  return newGrid;
-}
-
 function generateEmptyGrid(cols, rows) {
   let newGrid = [];
   for (let y = 0; y < rows; y++) {
@@ -252,6 +267,35 @@ function generateEmptyGrid(cols, rows) {
     }
   }
   return newGrid;
+}
+
+// function that adds matter.js blocks in the place of toggled grid
+function reBuildBlocks() {
+  // remove old blocks
+  for (let block of blockBodies) {
+    Composite.remove(engine.world, block);
+  }
+
+  blockBodies = [];
+
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      if (grid[y][x] === 1)  {
+
+        let block = Bodies.rectangle(
+          x * CELL_SIZE + CELL_SIZE / 2,
+          y * CELL_SIZE + CELL_SIZE / 2,
+          CELL_SIZE,
+          CELL_SIZE,
+          { isStatic: true }
+        );
+
+        blockBodies.push(block);
+      }
+    }
+  }
+  
+  Composite.add(engine.world, blockBodies);
 }
 
 
