@@ -42,10 +42,7 @@ function setup() {
   rows = Math.floor(height/CELL_SIZE);
   cols = Math.floor(width/CELL_SIZE);
   grid = generateEmptyGrid(cols, rows);
-
   
-  
-
   // Matter.js engine
   engine = Engine.create();
   reBuildBlocks();
@@ -83,12 +80,13 @@ function setup() {
   finnBody = Bodies.rectangle(
     width / 2, 
     height / 2, 
-    50, 
-    50,
+    30, 
+    60,
     {
-      friction: 0.1,
+      friction: 0,
       restitution: 0,
-      frictionAir: 0.02
+      frictionAir: 0.05,
+      inertia: Infinity
     }
   );
 
@@ -117,37 +115,8 @@ function draw() {
   // Update physics engine
   Engine.update(engine);
 
-  // ground detection. Jump reset
-  
+  characterActions();
 
-  // FINN (Character)
-  if (keyIsDown(65)) { // A key
-    Body.setVelocity(finnBody, {
-      x: -moveSpeed,
-      y: finnBody.velocity.y
-    });
-  }
-  if (keyIsDown(68)) { // D key
-    Body.setVelocity(finnBody, {
-      x: moveSpeed,
-      y: finnBody.velocity.y
-    });
-  }
-
-  rect(
-    finnBody.position.x,
-    finnBody.position.y,
-    50,
-    50
-  );
-  
-  finn.update(finnBody);
-  finn.display();
-
-
-
-
-  // MATTER.JS BALLS
   noStroke();
   fill(0, 0, 255, 50);
 
@@ -162,6 +131,44 @@ function draw() {
 
 }
 
+// Actions of the character
+function characterActions() {
+  if (keyIsDown(65)) { // A key
+    Body.setVelocity(finnBody, {
+      x: -moveSpeed,
+      y: finnBody.velocity.y
+    });
+  }
+  if (keyIsDown(68)) { // D key
+    Body.setVelocity(finnBody, {
+      x: moveSpeed,
+      y: finnBody.velocity.y
+    });
+  }
+  // Attack
+  if (keyIsDown()) {
+
+  }
+
+  if (!keyIsDown(65) && !keyIsDown(68)) {
+    Body.setVelocity(finnBody, {
+      x: 0,
+      y: finnBody.velocity.y
+    });
+  }
+
+  rect(
+    finnBody.position.x,
+    finnBody.position.y,
+    30,
+    50
+  );
+  
+  finn.update(finnBody);
+  finn.display();
+}
+
+// Calculates the hearlth of the character after it takes damage
 function characterHealth() {
   // Hearts display
   fill(0);
@@ -174,7 +181,7 @@ function characterHealth() {
   fill("blue");
   rect(300, 500, 80, 30);
   fill("green");
-  rect(finnBody.position.x, finnBody.position.y, 50, 50);
+  rect(finnBody.position.x, finnBody.position.y, 30, 50);
 
   hit = collideRectRect(
     300,
