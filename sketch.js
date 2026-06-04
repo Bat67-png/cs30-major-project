@@ -21,6 +21,8 @@ let jumpForce = -12;
 let jumpCount = 0;
 let maxJumps = 2;
 let radius = 30;
+let shurikenPng;
+let shurikens = [];
 
 // platformer grid
 const CELL_SIZE = 50;
@@ -33,6 +35,7 @@ let onGround = false;
 
 function preload() {
   finnImg = loadImage("sprites/FinnSprite.png");
+  shurikenPng = loadImage("assets/ninja_star.png");
 }
 
 function setup() {
@@ -129,6 +132,7 @@ function draw() {
     20
   );
 
+
 }
 
 // Actions of the character
@@ -221,6 +225,11 @@ function keyPressed() {
   if (key === "e") {
     grid = generateEmptyGrid(cols, rows);
     reBuildBlocks();
+  }
+
+  if (key === "e") {
+    let shuriken = new Shuriken(finnBody.position.x + 20, finnBody.position.y, 10, shurikenPng);
+    shurikens.push(shuriken);
   }
 }
 
@@ -374,4 +383,21 @@ class Sprite {
     );
   }
 }
+
+class Shuriken {
+  constructor(x, y, dx, theImage) {
+    this.x = x;
+    this.y = y;
+    this.speed = dx;
+    this.image = theImage;
+  }
+
+  display() {
+    image(this.x, this.y, theImage);
+  }
+
+  uptade() {
+  }
+}
+
 
