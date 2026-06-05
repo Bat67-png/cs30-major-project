@@ -23,6 +23,7 @@ let maxJumps = 2;
 let radius = 30;
 let shurikenPng;
 let shurikens = [];
+let attack = false;
 
 // platformer grid
 const CELL_SIZE = 50;
@@ -132,7 +133,12 @@ function draw() {
     20
   );
 
+  for (let shuriken of shurikens) {
+    shuriken.uptade();
+    shuriken.display();
+  }
 
+  console.log(attack);
 }
 
 // Actions of the character
@@ -149,16 +155,26 @@ function characterActions() {
       y: finnBody.velocity.y
     });
   }
-  // Attack
-  if (keyIsDown()) {
-
-  }
-
   if (!keyIsDown(65) && !keyIsDown(68)) {
     Body.setVelocity(finnBody, {
       x: 0,
       y: finnBody.velocity.y
     });
+  
+    // Attack
+    if (keyIsDown(69)) {
+      attack = true;
+    }
+    if (!keyIsDown(69)) {
+      attack = false;
+    }
+
+    if (attack) {
+      noStroke();
+      fill('red');
+      rect(finnBody.position.x + 20, finnBody.position.y, 60, 40);
+    }
+ 
   }
 
   rect(
@@ -222,12 +238,12 @@ function keyPressed() {
       jumpCount++;
     }
   }
-  if (key === "e") {
+  if (key === "p") {
     grid = generateEmptyGrid(cols, rows);
     reBuildBlocks();
   }
 
-  if (key === "e") {
+  if (key === "x") {
     let shuriken = new Shuriken(finnBody.position.x + 20, finnBody.position.y, 10, shurikenPng);
     shurikens.push(shuriken);
   }
@@ -242,6 +258,8 @@ function mousePressed() {
 
   //self
   toggleCell(x, y);
+
+  console.log(grid);
 }
 
 function toggleCell(x, y) {
@@ -384,6 +402,9 @@ class Sprite {
   }
 }
 
+// Work on this to create a long distance attack
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class Shuriken {
   constructor(x, y, dx, theImage) {
     this.x = x;
@@ -393,11 +414,11 @@ class Shuriken {
   }
 
   display() {
-    image(this.x, this.y, theImage);
+    image(this.image, this.x, this.y, this.image.width * 5, this.image.height * 5);
   }
 
   uptade() {
+    this.x += this.speed;
   }
 }
-
 
