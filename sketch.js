@@ -4,6 +4,7 @@ const { Engine, Bodies, Composite, Body, Events} = Matter;
 let engine;
 let balls = [];
 let ground;
+let gamemode = "menu";
 
 
 // Character
@@ -113,18 +114,21 @@ function createEmpty2dArray(cols, rows) {
 
 function draw() {
   background(220);
-  displayGrid();
-  characterHealth();
 
-  // Update physics engine
+// Game starts
+  if (gamemode === "start") {
+    displayGrid();
+    characterHealth();
+
+    // Update physics engine
   Engine.update(engine);
 
+  // character actions such as attacking and movements
   characterActions();
 
+  // Ground
   noStroke();
   fill(0, 0, 255, 50);
-
-  // Ground
   rectMode(CENTER);
   rect(
     ground.position.x,
@@ -133,12 +137,53 @@ function draw() {
     20
   );
 
+  // long distance attack
   for (let shuriken of shurikens) {
     shuriken.uptade();
     shuriken.display();
   }
 
   console.log(attack);
+  }
+
+// Main menu of the game
+  if (gamemode === "menu") {
+    drawMenu();
+  }
+}
+
+function drawMenu() {
+  background(30, 40, 80);
+
+  textAlign(CENTER, CENTER);
+
+  // Title
+  fill(255);
+  textSize(70);
+  text("Who is the Boss?", width / 3, 140);
+
+  // Subtitle
+  textSize(26);
+  text("Press ENTER to Start", width / 3, 300);
+
+  // Controls
+  textSize(22);
+  text("A / D = Move", width / 3, 400);
+  text("W or SPACE = Jump", width / 3, 440);
+  text("E = Attack", width / 3, 480);
+  text("X = Throw Shuriken", width / 3, 520);
+
+  // Button
+  rectMode(CENTER);
+  fill(70, 170, 255);
+  stroke(255);
+  strokeWeight(3);
+  rect(width / 3, 610, 300, 70, 12);
+
+  noStroke();
+  fill(255);
+  textSize(28);
+  text("START GAME", width / 3, 610);
 }
 
 // Actions of the character
