@@ -11,6 +11,11 @@ let gamemode = "menu";
 let finn;
 let finnImg;
 let finnBody;
+let attackTimer = 0;
+let state = "idle";
+const FLEFT = -1;
+const FRIGHT = 1;
+let facing = FLEFT;
 
 
 // Character actions
@@ -33,15 +38,17 @@ let rows;
 let cols;
 let blockBodies = [];
 let onGround = false;
+let wallpaper;
 
 
 function preload() {
   finnImg = loadImage("sprites/FinnSprite.png");
   shurikenPng = loadImage("assets/ninja_star.png");
+  wallpaper = loadImage("assets/background.jpg");
 }
 
 function setup() {
-  createCanvas(2000, 700);
+  createCanvas(1500, 1000);
 
   //Platformer grids
   rows = Math.floor(height/CELL_SIZE);
@@ -113,65 +120,70 @@ function createEmpty2dArray(cols, rows) {
 }
 
 function draw() {
-  background(220);
+  if (gamemode === "start") {
+    background(wallpaper, 0, 0, width, height);
+  }
 
-// Game starts
+  if (gamemode === "menu") {
+    background('darkblue');
+  }
+
+  // Game starts
   if (gamemode === "start") {
     displayGrid();
     characterHealth();
 
     // Update physics engine
-  Engine.update(engine);
+    Engine.update(engine);
 
-  // character actions such as attacking and movements
-  characterActions();
+    // character actions such as attacking and movements
+    characterActions();
 
-  // Ground
-  noStroke();
-  fill(0, 0, 255, 50);
-  rectMode(CENTER);
-  rect(
-    ground.position.x,
-    ground.position.y,
-    width,
-    20
-  );
+    // Ground
+    noStroke();
+    fill(0, 0, 255, 50);
+    rectMode(CENTER);
+    rect(
+      ground.position.x,
+      ground.position.y,
+      width,
+      20
+    );
 
-  // long distance attack
-  for (let shuriken of shurikens) {
-    shuriken.uptade();
-    shuriken.display();
+    // long distance attack
+    for (let shuriken of shurikens) {
+      shuriken.updatse();
+      shuriken.display();
+    }
+
+    console.log(attack);
   }
 
-  console.log(attack);
-  }
-
-// Main menu of the game
+  // Main menu of the game
   if (gamemode === "menu") {
     drawMenu();
   }
 }
 
 function drawMenu() {
-  background(30, 40, 80);
 
   textAlign(CENTER, CENTER);
 
   // Title
   fill(255);
   textSize(70);
-  text("Who is the Boss?", width / 3, 140);
+  text("Who is the Boss?", width / 2, 140);
 
   // Subtitle
   textSize(26);
-  text("Press ENTER to Start", width / 3, 300);
+  text("Press any KEY to Start", width / 2, 300);
 
   // Controls
   textSize(22);
-  text("A / D = Move", width / 3, 400);
-  text("W or SPACE = Jump", width / 3, 440);
-  text("E = Attack", width / 3, 480);
-  text("X = Throw Shuriken", width / 3, 520);
+  text("A / D = Move", width / 2, 400);
+  text("W or SPACE = Jump", width / 2, 440);
+  text("E = Attack", width / 2, 480);
+  text("X = Throw Shuriken", width / 2, 520);
 
   // Button
   rectMode(CENTER);
@@ -184,6 +196,8 @@ function drawMenu() {
   fill(255);
   textSize(28);
   text("START GAME", width / 3, 610);
+
+
 }
 
 // Actions of the character
@@ -205,21 +219,6 @@ function characterActions() {
       x: 0,
       y: finnBody.velocity.y
     });
-  
-    // Attack
-    if (keyIsDown(69)) {
-      attack = true;
-    }
-    if (!keyIsDown(69)) {
-      attack = false;
-    }
-
-    if (attack) {
-      noStroke();
-      fill('red');
-      rect(finnBody.position.x + 20, finnBody.position.y, 60, 40);
-    }
- 
   }
 
   rect(
@@ -231,6 +230,20 @@ function characterActions() {
   
   finn.update(finnBody);
   finn.display();
+
+  if (attack) {
+    noStroke();
+    fill('red');
+    rectMode(CENTER);
+    rect(finnBody.position.x + 20 * facing, finnBody.position.y, 60, 40);
+
+    attackTimer--;
+    
+    if (attackTimer <= 0) {
+      attack = false;
+    }
+  }
+
 }
 
 // Calculates the hearlth of the character after it takes damage
@@ -292,6 +305,30 @@ function keyPressed() {
     let shuriken = new Shuriken(finnBody.position.x + 20, finnBody.position.y, 10, shurikenPng);
     shurikens.push(shuriken);
   }
+
+  if (key === "d") {
+    facing = FRIGHT;
+  }
+  if(key === "a") {
+    facing = FLEFT;
+  }
+
+  if (gamemode === "menu") {
+    gamemode = "start";
+  }
+
+  // Attack
+  if (key === "e") {
+    attack = true;
+    attackTimer = 20;
+  }
+
+  // attack cancel function 
+  // if () {
+  //   attack = false;
+  // }
+
+  
 }
 
 // Platformer grids
@@ -462,7 +499,7 @@ class Shuriken {
     image(this.image, this.x, this.y, this.image.width * 5, this.image.height * 5);
   }
 
-  uptade() {
+  update() {
     this.x += this.speed;
   }
 }
