@@ -165,6 +165,21 @@ function draw() {
     background('darkblue');
   }
 
+  if (gamemode === "win") {
+    background(0);
+
+    fill("green");
+    textAlign(CENTER, CENTER);
+    textSize(80);
+    text("YOU WON", width / 2, height / 2);
+
+    textSize(30);
+    fill(255);
+    text("Press any KEY to Restart", width / 2, height / 2 + 80);
+
+    return;
+  }
+
   // Game starts
   if (gamemode === "start") {
     displayGrid();
@@ -214,31 +229,28 @@ if (gamemode === "start") {
   for (let enemy of enemies) {
   enemy.update();
   enemy.display();
-  } 
-}
 
-if (gamemode === "start") {
   for (let enemy of enemies) {
     if (!enemy.alive) continue;
-
+  
     let ex = enemy.body.position.x;
     let ey = enemy.body.position.y;
-
+  
     let ax = finnBody.position.x + 20 * facing;
     let ay = finnBody.position.y;
-
+  
     let hit =
       ax > ex - 30 &&
       ax < ex + 30 &&
       ay > ey - 30 &&
       ay < ey + 30;
-
+  
     if (attack && hit) {
       enemy.die();
     }
   }
+  } 
 }
-  
 }
 
 function findGroundY(xCell) {
@@ -263,7 +275,7 @@ function drawMenu() {
   // Title
   fill(255);
   textSize(70);
-  text("Who is the Boss?", width / 2, 140);
+  text("Platformer", width / 2, 140);
 
   // Subtitle
   textSize(26);
@@ -303,13 +315,6 @@ if (keyIsDown(68)) { // D
       y: finnBody.velocity.y
     });
   }
-
-  rect(
-    finnBody.position.x,
-    finnBody.position.y,
-    30,
-    50
-  );
   
   finn.update(finnBody);
   finn.display();
@@ -339,16 +344,16 @@ function characterHealth() {
   
   // COLLISION TEST RECT
   rectMode(CENTER);
-  fill("blue");
-  rect(300, 500, 80, 30);
+  fill("green");
+  rect(1025, 590, 80, 100);
   fill("green");
   rect(finnBody.position.x, finnBody.position.y, 30, 50);
 
   hit = collideRectRect(
-    300,
-    500,
+    1025,
+    590,
     80,
-    30,
+    100,
     finnBody.position.x,
     finnBody.position.y,
     50,
@@ -356,13 +361,8 @@ function characterHealth() {
   );
 
   // Lose one heart only once per touch
-  if (hit && gate === false) {
-    hearts--;
-    gate = true;
-  }
-
-  if (!hit) {
-    gate = false;
+  if (hit) {
+    gamemode = "win"
   }
 }
 
@@ -430,6 +430,29 @@ function keyPressed() {
 
 }
 
+  if (gamemode === "win") {
+
+  // reset player
+  Body.setPosition(finnBody, {
+    x: width / 2,
+    y: height / 2
+  });
+
+  Body.setVelocity(finnBody, {
+    x: 0,
+    y: 0
+  });
+
+  // reset enemies
+  enemies = [];
+
+  let spawnX = 5 * CELL_SIZE;
+  let spawnY = findGroundY(5);
+
+  enemies.push(new Enemy(spawnX, spawnY));
+
+  gamemode = "start";
+}
   
 }
 
@@ -619,7 +642,8 @@ class Enemy {
     this.body = Bodies.rectangle(x, y, CELL_SIZE * 0.8, CELL_SIZE, {
       friction: 0,
       frictionAir: 0,
-      restitution: 0
+      restitution: 0,
+      inertia: Infinity
     });
 
     this.size = CELL_SIZE;
