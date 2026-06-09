@@ -48,7 +48,7 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(1500, 1000);
+  createCanvas(1500, 700);
 
   //Platformer grids
   rows = Math.floor(height/CELL_SIZE);
@@ -121,7 +121,7 @@ function createEmpty2dArray(cols, rows) {
 
 function draw() {
   if (gamemode === "start") {
-    background(wallpaper, 0, 0, width, height);
+    image(wallpaper, 0, 0, width, height);
   }
 
   if (gamemode === "menu") {
@@ -151,10 +151,18 @@ function draw() {
     );
 
     // long distance attack
-    for (let shuriken of shurikens) {
-      shuriken.updatse();
-      shuriken.display();
-    }
+    for (let i = shurikens.length - 1; i >= 0; i--) {
+
+  shurikens[i].update();
+  shurikens[i].display();
+
+  if (
+    shurikens[i].x < -100 ||
+    shurikens[i].x > width + 100
+  ) {
+    shurikens.splice(i, 1);
+  }
+}
 
     console.log(attack);
   }
@@ -184,36 +192,27 @@ function drawMenu() {
   text("W or SPACE = Jump", width / 2, 440);
   text("E = Attack", width / 2, 480);
   text("X = Throw Shuriken", width / 2, 520);
-
-  // Button
-  rectMode(CENTER);
-  fill(70, 170, 255);
-  stroke(255);
-  strokeWeight(3);
-  rect(width / 3, 610, 300, 70, 12);
-
-  noStroke();
-  fill(255);
-  textSize(28);
-  text("START GAME", width / 3, 610);
-
-
 }
 
 // Actions of the character
 function characterActions() {
-  if (keyIsDown(65)) { // A key
-    Body.setVelocity(finnBody, {
-      x: -moveSpeed,
-      y: finnBody.velocity.y
-    });
-  }
-  if (keyIsDown(68)) { // D key
-    Body.setVelocity(finnBody, {
-      x: moveSpeed,
-      y: finnBody.velocity.y
-    });
-  }
+  if (keyIsDown(65)) { // A
+  facing = FLEFT;
+
+  Body.setVelocity(finnBody, {
+    x: -moveSpeed,
+    y: finnBody.velocity.y
+  });
+}
+
+if (keyIsDown(68)) { // D
+  facing = FRIGHT;
+
+  Body.setVelocity(finnBody, {
+    x: moveSpeed,
+    y: finnBody.velocity.y
+  });
+}
   if (!keyIsDown(65) && !keyIsDown(68)) {
     Body.setVelocity(finnBody, {
       x: 0,
@@ -302,9 +301,19 @@ function keyPressed() {
   }
 
   if (key === "x") {
-    let shuriken = new Shuriken(finnBody.position.x + 20, finnBody.position.y, 10, shurikenPng);
-    shurikens.push(shuriken);
-  }
+
+  let offset = 20 * facing;
+  let speed = 10 * facing;
+
+  let shuriken = new Shuriken(
+    finnBody.position.x + offset,
+    finnBody.position.y,
+    speed,
+    shurikenPng
+  );
+
+  shurikens.push(shuriken);
+}
 
   if (key === "d") {
     facing = FRIGHT;
@@ -464,23 +473,30 @@ class Sprite {
     imageMode(CENTER);
     noSmooth();
 
-    image(
-      this.image,
+    push();
 
-      // screen position
-      this.x,
-      this.y,
+translate(this.x, this.y);
 
-      // display size
-      100,
-      100,
+if (facing === FLEFT) {
+  scale(-1, 1);
+}
 
-      // spritesheet crop
-      this.frame * frameWidth,
-      0,
-      frameWidth,
-      frameHeight
-    );
+image(
+  this.image,
+
+  0,
+  0,
+
+  100,
+  100,
+
+  this.frame * frameWidth,
+  0,
+  frameWidth,
+  frameHeight
+);
+
+pop();
   }
 }
 
