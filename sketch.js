@@ -1,3 +1,5 @@
+//Music
+let bgMusic;
 
 // Matter.js
 const { Engine, Bodies, Composite, Body, Events} = Matter;
@@ -17,6 +19,8 @@ const FLEFT = -1;
 const FRIGHT = 1;
 let facing = FLEFT;
 
+// Enemies
+let enemies = [];
 
 // Character actions
 let hit = false;
@@ -39,21 +43,26 @@ let cols;
 let blockBodies = [];
 let onGround = false;
 let wallpaper;
+let level;
 
 
 function preload() {
   finnImg = loadImage("sprites/FinnSprite.png");
   shurikenPng = loadImage("assets/ninja_star.png");
   wallpaper = loadImage("assets/background.jpg");
+  level = loadStrings("assets/1");
+
+  bgMusic = loadSound("assets/bgMusic.mp3");
 }
 
 function setup() {
   createCanvas(1500, 700);
 
   //Platformer grids
-  rows = Math.floor(height/CELL_SIZE);
-  cols = Math.floor(width/CELL_SIZE);
-  grid = generateEmptyGrid(cols, rows);
+  grid = loadMap(level);
+
+rows = grid.length;
+cols = grid[0].length;
   
   // Matter.js engine
   engine = Engine.create();
@@ -106,6 +115,16 @@ function setup() {
 
   // Finn sprite
   finn = new Sprite(finnBody.position.x, finnBody.position.y, finnImg, 9);
+  
+  // enemies
+  let spawnX = 5 * CELL_SIZE;
+  let spawnY = findGroundY(5);
+
+  enemies.push(new Enemy(spawnX, spawnY));
+
+  grid = loadMap(level);
+  rows = grid.length;
+  cols = grid[0].length;
 }
 
 function createEmpty2dArray(cols, rows) {
@@ -117,6 +136,24 @@ function createEmpty2dArray(cols, rows) {
     }
   }
   return randomGrid;
+}
+
+function loadMap(theMap) {
+  let newGrid = [];
+
+  for (let y = 0; y < theMap.length; y++) {
+
+    // Split on comma
+    let row = theMap[y].split(",");
+
+    newGrid[y] = [];
+
+    for (let x = 0; x < row.length; x++) {
+      newGrid[y][x] = Number(row[x].trim());
+    }
+  }
+
+  return newGrid;
 }
 
 function draw() {
@@ -171,6 +208,52 @@ function draw() {
   if (gamemode === "menu") {
     drawMenu();
   }
+
+// Enemies 
+if (gamemode === "start") {
+  for (let enemy of enemies) {
+  enemy.update();
+  enemy.display();
+  } 
+}
+
+if (gamemode === "start") {
+  for (let enemy of enemies) {
+    if (!enemy.alive) continue;
+
+    let ex = enemy.body.position.x;
+    let ey = enemy.body.position.y;
+
+    let ax = finnBody.position.x + 20 * facing;
+    let ay = finnBody.position.y;
+
+    let hit =
+      ax > ex - 30 &&
+      ax < ex + 30 &&
+      ay > ey - 30 &&
+      ay < ey + 30;
+
+    if (attack && hit) {
+      enemy.die();
+    }
+  }
+}
+  
+}
+
+function findGroundY(xCell) {
+  for (let y = 0; y < rows; y++) {
+    if (grid[y][xCell] === 1) {
+
+      // Top of block
+      let blockTop = y * CELL_SIZE;
+
+      // Enemy stands on top of it
+      return blockTop - CELL_SIZE / 2;
+    }
+  }
+
+  return height - CELL_SIZE;
 }
 
 function drawMenu() {
@@ -192,6 +275,7 @@ function drawMenu() {
   text("W or SPACE = Jump", width / 2, 440);
   text("E = Attack", width / 2, 480);
   text("X = Throw Shuriken", width / 2, 520);
+  text("Click mouse to create blocks", width / 2, 560);
 }
 
 // Actions of the character
@@ -332,10 +416,19 @@ function keyPressed() {
     attackTimer = 20;
   }
 
-  // attack cancel function 
-  // if () {
-  //   attack = false;
-  // }
+  // Music
+  if (key === "b" || key === "B") {
+
+  if (bgMusic.isPlaying()) {
+    bgMusic.stop();
+  }
+  else {
+    bgMusic.setLoop(true);
+    bgMusic.setVolume(0.3);
+    bgMusic.play();
+  }
+
+}
 
   
 }
@@ -520,3 +613,72 @@ class Shuriken {
   }
 }
 
+// class enemy
+class Enemy {
+  constructor(x, y) {
+    this.body = Bodies.rectangle(x, y, CELL_SIZE * 0.8, CELL_SIZE, {
+      friction: 0,
+      frictionAir: 0,
+      restitution: 0
+    });
+
+    this.size = CELL_SIZE;
+    this.speed = 2;
+    this.dir = 1;
+
+    this.alive = true;
+
+    Composite.add(engine.world, this.body);
+  }
+
+  update() {
+  if (!this.alive) return;
+
+  let pos = this.body.position;
+
+  let playerGX = Math.floor(finnBody.position.x / CELL_SIZE);
+  let enemyGX = Math.floor(pos.x / CELL_SIZE);
+  let enemyGY = Math.floor(pos.y / CELL_SIZE);
+
+  this.dir = playerGX > enemyGX ? 1 : -1;
+
+  let nextX = enemyGX + this.dir;
+
+  if (this.canMove(nextX, enemyGY)) {
+    Body.setVelocity(this.body, {
+      x: this.dir * this.speed,
+      y: this.body.velocity.y
+    });
+  } else {
+    // stop instead of forcing movement
+    Body.setVelocity(this.body, {
+      x: 0,
+      y: this.body.velocity.y
+    });
+  }
+}
+
+  canMove(gx, gy) {
+    if (
+      gy < 0 || gy >= rows ||
+      gx < 0 || gx >= cols
+    ) return false;
+
+    return grid[gy][gx] === 0;
+  }
+
+  display() {
+    if (!this.alive) return;
+
+    let pos = this.body.position;
+
+    fill("red");
+    rectMode(CENTER);
+    rect(pos.x, pos.y, this.size * 0.8, this.size);
+  }
+
+  die() {
+    this.alive = false;
+    Composite.remove(engine.world, this.body);
+  }
+}
