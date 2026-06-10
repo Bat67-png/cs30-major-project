@@ -21,6 +21,14 @@
 - Added basic movement system. The character can double jump and move left and right.
 
 
-What was the hardest part of the project?
+3. What was the hardest part of the project?
 
-Were there any problems you could not solve?
+- Implementing matter.js library to my code took some time to figure out, but I successfully used it to create the character and the platforms
+
+- Figuring out how to create the animation using the spritesheet was really tricky
+
+4. Were there any problems you could not solve?
+
+- Although the sprite animation works I couldn't make it interactive, the sprite is always in a state of idle animation
+
+- I could only add background music and couldn't add sound effects for the actions of the character
